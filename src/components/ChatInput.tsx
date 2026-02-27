@@ -5,7 +5,7 @@ const ChatInput = () => {
   const [message, setMessage] = useState("");
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full">
       {/* Main input card */}
       <div className="rounded-2xl border border-border bg-card shadow-[0_2px_12px_-2px_hsl(var(--foreground)/0.06)] overflow-hidden transition-shadow hover:shadow-[0_4px_20px_-4px_hsl(var(--foreground)/0.1)]">
         <div className="px-5 pt-4 pb-2">
