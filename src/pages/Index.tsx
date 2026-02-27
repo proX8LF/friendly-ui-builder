@@ -1,12 +1,18 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import mascot from "@/assets/mascot.png";
+import ChatInput from "@/components/ChatInput";
 
 const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="flex flex-col items-center justify-center min-h-screen dot-grid px-4">
+      <div className="flex flex-col items-center mb-8">
+        <img
+          src={mascot}
+          alt="Mascot"
+          className="w-16 h-16 mb-2 object-contain"
+          style={{ imageRendering: "pixelated" }}
+        />
       </div>
+      <ChatInput />
     </div>
   );
 };
