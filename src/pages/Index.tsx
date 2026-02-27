@@ -1,4 +1,5 @@
 import ChatInput from "@/components/ChatInput";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const AsciiMascot = () => (
   <pre
@@ -15,7 +16,8 @@ const AsciiMascot = () => (
 
 const Index = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen dot-grid px-4">
+    <div className="relative flex flex-col items-center justify-center min-h-screen dot-grid px-4">
+      <ThemeToggle />
       <div className="flex flex-col items-center">
         <AsciiMascot />
       </div>
