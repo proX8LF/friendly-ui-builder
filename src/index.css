@@ -85,7 +85,7 @@
 
 @layer utilities {
   .dot-grid {
-    background-image: radial-gradient(circle, hsl(var(--dot-color)) 1px, transparent 1px);
-    background-size: 24px 24px;
+    background-image: radial-gradient(circle, hsl(var(--dot-color)) 1.8px, transparent 1.8px);
+    background-size: 28px 28px;
   }
 }
