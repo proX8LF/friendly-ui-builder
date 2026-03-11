@@ -2,3 +2,6 @@ project_id = "dhlwhfxgnuxzjuabkvap"
 
 [functions.groq-chat]
 verify_jwt = false
+
+[functions.consulting-chat]
+verify_jwt = false
