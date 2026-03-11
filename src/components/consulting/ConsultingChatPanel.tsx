@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, Bot } from "lucide-react";
 import { type Msg } from "@/lib/consulting-stream";
 import MessageBubble from "./MessageBubble";
 import VoiceButton from "./VoiceButton";
