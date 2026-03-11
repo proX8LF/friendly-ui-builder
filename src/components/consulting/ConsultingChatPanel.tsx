@@ -82,6 +82,3 @@ export default function ConsultingChatPanel({ messages, isLoading, onSend }: Pro
     </div>
   );
 }
-
-// Re-export for convenience
-import { Bot } from "lucide-react";
