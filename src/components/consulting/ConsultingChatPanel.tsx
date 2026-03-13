@@ -1,16 +1,24 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, Loader2, Bot } from "lucide-react";
-import { type Msg } from "@/lib/consulting-stream";
-import MessageBubble from "./MessageBubble";
+import type { ConsultingMessage, CodeFragment } from "@/lib/types";
+import MessageCard from "./MessageCard";
 import VoiceButton from "./VoiceButton";
 
 interface Props {
-  messages: Msg[];
+  messages: ConsultingMessage[];
   isLoading: boolean;
   onSend: (text: string) => void;
+  activeCodeFragment: CodeFragment | null;
+  onCodeFragmentClick: (fragment: CodeFragment) => void;
 }
 
-export default function ConsultingChatPanel({ messages, isLoading, onSend }: Props) {
+export default function ConsultingChatPanel({
+  messages,
+  isLoading,
+  onSend,
+  activeCodeFragment,
+  onCodeFragmentClick,
+}: Props) {
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -25,6 +33,8 @@ export default function ConsultingChatPanel({ messages, isLoading, onSend }: Pro
     onSend(trimmed);
   };
 
+  const visibleMessages = messages.filter((m) => m.role !== "system");
+
   return (
     <div className="flex flex-col h-full">
       <div className="px-4 py-3 border-b border-border/50 shrink-0">
@@ -33,14 +43,19 @@ export default function ConsultingChatPanel({ messages, isLoading, onSend }: Pro
       </div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto py-2">
-        {messages.filter(m => m.role !== "system").length === 0 && (
+        {visibleMessages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center px-6 gap-2 opacity-50">
             <Bot className="w-8 h-8 text-muted-foreground" />
             <p className="text-sm text-muted-foreground">Submit an idea to start consulting</p>
           </div>
         )}
-        {messages.filter(m => m.role !== "system").map((m, i) => (
-          <MessageBubble key={i} role={m.role as "user" | "assistant"} content={m.content} />
+        {visibleMessages.map((m, i) => (
+          <MessageCard
+            key={i}
+            message={m}
+            isActiveCodeFragment={activeCodeFragment?.id === m.codeFragment?.id}
+            onCodeFragmentClick={onCodeFragmentClick}
+          />
         ))}
         {isLoading && messages[messages.length - 1]?.role === "user" && (
           <div className="px-4 py-3 flex gap-3">
@@ -60,7 +75,9 @@ export default function ConsultingChatPanel({ messages, isLoading, onSend }: Pro
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
+            }}
             placeholder="Ask a consulting question..."
             className="flex-1 bg-muted/30 border border-border/50 rounded-xl px-3 py-2 text-sm resize-none outline-none focus:border-primary/50 transition-colors min-h-[40px] max-h-[100px] text-foreground placeholder:text-muted-foreground"
             rows={1}

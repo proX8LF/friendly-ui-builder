@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.consulting-chat]
 verify_jwt = false
+
+[functions.e2b-sandbox]
+verify_jwt = false
