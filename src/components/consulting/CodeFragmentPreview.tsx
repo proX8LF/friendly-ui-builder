@@ -116,7 +116,7 @@ export default function CodeFragmentPreview({ fragment, onClose }: Props) {
             {sandboxResult.stdout && sandboxResult.stdout.length > 0 && (
               <div>
                 <p className="text-[10px] font-semibold text-muted-foreground mb-1">Output:</p>
-                <pre className="bg-muted/50 rounded-lg p-3 text-xs font-mono text-green-500">
+                <pre className="bg-muted/50 rounded-lg p-3 text-xs font-mono text-primary">
                   {sandboxResult.stdout.join("\n")}
                 </pre>
               </div>
