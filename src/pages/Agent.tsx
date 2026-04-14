@@ -22,7 +22,7 @@ export default function Agent() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<string | null>("src/main.ts");
-  const [model, setModel] = useState("meta-llama/llama-4-maverick-17b-128e-instruct");
+  const [model, setModel] = useState("google/gemini-3-flash-preview");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [, setTick] = useState(0); // force re-render after fs changes
   const refresh = () => setTick((t) => t + 1);

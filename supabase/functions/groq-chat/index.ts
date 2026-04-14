@@ -6,11 +6,11 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const GROQ_MODELS = [
-  "openai/gpt-oss-120b",
-  "meta-llama/llama-4-maverick-17b-128e-instruct",
-  "meta-llama/llama-4-scout-17b-16e-instruct",
-  "meta-llama/llama-guard-4-12b",
+const AVAILABLE_MODELS = [
+  "google/gemini-3-flash-preview",
+  "google/gemini-2.5-flash",
+  "google/gemini-2.5-pro",
+  "openai/gpt-5-mini",
 ];
 
 const SYSTEM_PROMPT = `You are an expert coding agent. You can read, write, and patch files in the user's project.
@@ -35,7 +35,14 @@ Format your tool calls as JSON blocks wrapped in <tool_call> tags:
 {"name": "read_file", "arguments": {"file_path": "src/example.ts"}}
 </tool_call>
 
-You can make multiple tool calls in one response. Always provide clear explanations alongside tool calls.`;
+You can make multiple tool calls in one response. Always provide clear explanations alongside tool calls.
+
+When generating code fragments (e.g. full pages, components, scripts), wrap them in markdown code blocks with the language and file path, like:
+\`\`\`tsx file=pages/index.tsx
+// code here
+\`\`\`
+
+This enables the code to be extracted and run in a sandbox environment.`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -44,17 +51,17 @@ serve(async (req) => {
 
   try {
     const { messages, model } = await req.json();
-    const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
-    if (!GROQ_API_KEY) {
-      throw new Error("GROQ_API_KEY is not configured");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const selectedModel = GROQ_MODELS.includes(model) ? model : GROQ_MODELS[0];
+    const selectedModel = AVAILABLE_MODELS.includes(model) ? model : AVAILABLE_MODELS[0];
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${GROQ_API_KEY}`,
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -64,24 +71,27 @@ serve(async (req) => {
           ...messages,
         ],
         stream: true,
-        temperature: 0.3,
-        max_tokens: 8192,
       }),
     });
 
     if (!response.ok) {
-      const errText = await response.text();
-      console.error("Groq API error:", response.status, errText);
-
-      if (response.status === 429) {
+      const status = response.status;
+      if (status === 429) {
         return new Response(
           JSON.stringify({ error: "Rate limit exceeded. Please wait a moment and try again." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-
+      if (status === 402) {
+        return new Response(
+          JSON.stringify({ error: "Usage limit reached. Please add credits in Settings > Workspace > Usage." }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      const t = await response.text();
+      console.error("AI gateway error:", status, t);
       return new Response(
-        JSON.stringify({ error: `Groq API error: ${response.status}` }),
+        JSON.stringify({ error: `AI service error: ${status}` }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
