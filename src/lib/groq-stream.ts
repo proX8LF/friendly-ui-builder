@@ -1,14 +1,14 @@
-// Streaming client for the Groq edge function
+// Streaming client for the AI coding agent edge function
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/groq-chat`;
 
 export type Msg = { role: "user" | "assistant" | "system"; content: string };
 
 export const GROQ_MODELS = [
-  { id: "openai/gpt-oss-120b", label: "GPT-OSS 120B" },
-  { id: "meta-llama/llama-4-maverick-17b-128e-instruct", label: "Llama 4 Maverick" },
-  { id: "meta-llama/llama-4-scout-17b-16e-instruct", label: "Llama 4 Scout" },
-  { id: "meta-llama/llama-guard-4-12b", label: "Llama Guard 4" },
+  { id: "google/gemini-3-flash-preview", label: "Gemini 3 Flash" },
+  { id: "google/gemini-2.5-flash", label: "Gemini 2.5 Flash" },
+  { id: "google/gemini-2.5-pro", label: "Gemini 2.5 Pro" },
+  { id: "openai/gpt-5-mini", label: "GPT-5 Mini" },
 ] as const;
 
 export async function streamGroqChat({
@@ -79,7 +79,6 @@ export async function streamGroqChat({
       }
     }
 
-    // flush remaining
     if (buffer.trim()) {
       for (let raw of buffer.split("\n")) {
         if (!raw) continue;

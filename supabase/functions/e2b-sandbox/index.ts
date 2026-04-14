@@ -6,6 +6,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const E2B_API_BASE = "https://api.e2b.dev";
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -17,7 +19,7 @@ serve(async (req) => {
       throw new Error("E2B_API_KEY is not configured");
     }
 
-    const { template, filePath, code, language } = await req.json();
+    const { template, filePath, code, language, additionalDeps } = await req.json();
 
     if (!code || !template) {
       return new Response(
@@ -27,7 +29,7 @@ serve(async (req) => {
     }
 
     // Create E2B sandbox
-    const createResp = await fetch("https://api.e2b.dev/sandboxes", {
+    const createResp = await fetch(`${E2B_API_BASE}/sandboxes`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -35,7 +37,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         templateID: template,
-        timeout: 300, // 5 minutes
+        timeoutMs: 300000, // 5 minutes in ms
       }),
     });
 
@@ -43,18 +45,35 @@ serve(async (req) => {
       const errText = await createResp.text();
       console.error("E2B create error:", createResp.status, errText);
       return new Response(
-        JSON.stringify({ error: `Failed to create sandbox: ${createResp.status}` }),
+        JSON.stringify({ error: `Failed to create sandbox: ${createResp.status} - ${errText}` }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const sandbox = await createResp.json();
     const sandboxId = sandbox.sandboxID;
-    const clientId = sandbox.clientID;
 
-    // Write file to sandbox
+    // Install additional dependencies if provided
+    if (additionalDeps && additionalDeps.length > 0) {
+      const installCmd = template === "code-interpreter-v1"
+        ? `pip install ${additionalDeps.join(" ")}`
+        : `cd /home/user && npm install ${additionalDeps.join(" ")}`;
+
+      await fetch(`${E2B_API_BASE}/sandboxes/${sandboxId}/commands`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-Key": E2B_API_KEY,
+        },
+        body: JSON.stringify({ cmd: installCmd, timeoutMs: 60000 }),
+      });
+    }
+
+    // Write the code file
+    const targetPath = filePath || (template === "code-interpreter-v1" ? "script.py" : "pages/index.tsx");
+
     const writeResp = await fetch(
-      `https://api.e2b.dev/sandboxes/${sandboxId}/files`,
+      `${E2B_API_BASE}/sandboxes/${sandboxId}/files`,
       {
         method: "POST",
         headers: {
@@ -62,7 +81,7 @@ serve(async (req) => {
           "X-API-Key": E2B_API_KEY,
         },
         body: JSON.stringify({
-          files: [{ path: filePath || "pages/index.tsx", data: code }],
+          files: [{ path: targetPath, data: code }],
         }),
       }
     );
@@ -74,7 +93,7 @@ serve(async (req) => {
     // For code-interpreter, execute the code
     if (template === "code-interpreter-v1") {
       const execResp = await fetch(
-        `https://api.e2b.dev/sandboxes/${sandboxId}/code/execution`,
+        `${E2B_API_BASE}/sandboxes/${sandboxId}/code/execution`,
         {
           method: "POST",
           headers: {
@@ -99,8 +118,7 @@ serve(async (req) => {
       );
     }
 
-    // For web templates, return the preview URL
-    // E2B sandbox host pattern
+    // For web templates (nextjs-developer, etc.), return the preview URL
     const port = template === "nextjs-developer" ? 3000 : 80;
     const previewUrl = `https://${sandboxId}-${port}.e2b.dev`;
 
