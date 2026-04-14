@@ -24,9 +24,9 @@ const taskItems = [
 ];
 
 const statusColors: Record<string, string> = {
-  done: "bg-green-500",
-  progress: "bg-blue-500",
-  review: "bg-amber-500",
+  done: "bg-primary",
+  progress: "bg-ring",
+  review: "bg-destructive",
   todo: "bg-muted-foreground/30",
 };
 
@@ -50,7 +50,7 @@ export default function ShowcasePreview() {
               <div className="flex items-center gap-2 px-3 py-2 border-b border-border bg-muted/50">
                 <div className="w-3 h-3 rounded bg-blue-500/20 border border-blue-500/40" />
                 <span className="text-[11px] font-mono text-muted-foreground">./src/pages/App.tsx</span>
-                <span className="ml-auto text-[10px] text-green-600 font-medium">+11 -3</span>
+                <span className="ml-auto text-[10px] text-primary font-medium">+11 -3</span>
               </div>
               <div className="p-0 text-[11px] font-mono leading-5">
                 {codeLines.map((line) => (
@@ -58,7 +58,7 @@ export default function ShowcasePreview() {
                     key={line.num}
                     className={`flex px-3 ${
                       line.type === "add"
-                        ? "bg-green-500/8 text-green-700 dark:text-green-400"
+                        ? "bg-primary/8 text-primary"
                         : "text-muted-foreground"
                     }`}
                   >
@@ -79,8 +79,8 @@ export default function ShowcasePreview() {
               <div className="flex items-center gap-2 px-3 py-2 border-b border-border bg-muted/50">
                 <div className="flex gap-1">
                   <div className="w-2.5 h-2.5 rounded-full bg-destructive/60" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-amber-400/60" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground/40" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-primary/60" />
                 </div>
                 <span className="text-[10px] text-muted-foreground font-mono ml-2">localhost:3000</span>
               </div>
