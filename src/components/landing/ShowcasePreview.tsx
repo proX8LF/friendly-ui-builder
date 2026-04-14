@@ -48,7 +48,7 @@ export default function ShowcasePreview() {
             <p className="text-sm text-muted-foreground">Inspect AI generated code with diffs</p>
             <div className="rounded-xl border border-border bg-card overflow-hidden">
               <div className="flex items-center gap-2 px-3 py-2 border-b border-border bg-muted/50">
-                <div className="w-3 h-3 rounded bg-blue-500/20 border border-blue-500/40" />
+                <div className="w-3 h-3 rounded bg-primary/20 border border-primary/40" />
                 <span className="text-[11px] font-mono text-muted-foreground">./src/pages/App.tsx</span>
                 <span className="ml-auto text-[10px] text-primary font-medium">+11 -3</span>
               </div>
